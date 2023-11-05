@@ -138,7 +138,7 @@
 %% CLASS FILE LOADING
 
 \LoadClass[b5paper,11pt,openright,\paging]{report}
-
+% \LoadClass[journal]{IEEEtran}
 %% PACKAGE LOADING
 
 \RequirePackage[utf8]{inputenc}             % for special characters in input
