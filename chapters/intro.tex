@@ -42,11 +42,7 @@ Older methods have achieved good image interpolation by estimating the depth of 
 Recent \gls{nerf} methods build a continuous representation of the scene, usually by optimizing a neural network to predict the radiance at any point in space \cite{mildenhallNeRFRepresentingScenes2020a}.
 Ray marching is used to sample points from the scene to render the scene from a given viewpoint.
 A problem with this approach is that a lot of resources are wasted on rendering transparent or occluded parts of the scene, as the whole volume is sampled.
-Different new representation have been proposed to circumvent this problem, including using a sparse voxel grid \cite{yuPlenoxelsRadianceFields2021a}, a hash table \cite{mullerInstantNeuralGraphics2022} and points \cite{xuPointNeRFPointbasedNeural2023}.
+Different new representations have been proposed to circumvent this problem, including using a sparse voxel grid \cite{yuPlenoxelsRadianceFields2021a}, a hash table \cite{mullerInstantNeuralGraphics2022} and points \cite{xuPointNeRFPointbasedNeural2023}.
 However, none of these methods appear to perform as well as the method proposed in the Gaussian Splatter paper, where they represent the scene using a set of Gaussian splats \cite{kerbl3DGaussianSplatting2023}.
 
 
-
-\begin{equation}
-    \hat{I}_i
-\end{equation}
