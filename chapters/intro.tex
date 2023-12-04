@@ -1,0 +1,49 @@
+\begin{abstract}
+    The introduction of Gaussian Splatting has disrupted the field \gls{nvs}. This technology has gained rapid adoption and further development in academia, and it has also been successfully leveraged in the industry, showcasing its immense potential \cite{LumaAIVideo}.
+
+    This report aims to provide an accessible overview of the paper that introduced Gaussian Splatting and discuss its implications.
+    Additionally, we will explore hypothetical future improvements to the core technology by harnessing the power of hardware-accelerated ray tracing.
+
+
+\end{abstract}
+
+\section{Introduction}
+\gls{nvs} is a computer vision problem where the goal is to represent a scene in a way such that given a new \text{view}, an accurate image can be generated.
+Here we define a \textit{view} as the position and orientation of a camera in the scene together with the camera's intrinsic parameters.
+
+Current state-of-the-art methods vary in how they represent the scene and generate images
+but share the same general problem formulation;
+Given a set of training images $\mathbf{I}_i$,
+taken from different views $\mathbf{V}_i$,
+the goal is to find a representation of the scene $\mathbf{S}$,
+together with a rendering function $\mathbf{\hat{I}}_i = g(\mathbf{S}, \mathbf{V}_i)$,
+such that some cost function $\mathcal{L}(\mathbf{I}_i, \mathbf{\hat{I}}_i)$,
+is minimized over all training images.
+To evaluate the performance of a method, a collection of test images $\mathbf{I}_j$ together with their corresponding views $\mathbf{V}_j$ is used to evaluate the method's ability to generalize to unseen data.
+
+
+
+
+
+Older methods achieved decent image interpolation by estimating the depth of the scene to correctly warp and blend adjacent images \cite{zitnickHighqualityVideoView2004}.
+% With the development of \gls{sfm} methods
+the introduction of \gls{nerf} methods had a big  \cite{mildenhallNeRFRepresentingScenes2020a}.
+
+
+
+
+
+\section{Previous Work}
+Older methods have achieved good image interpolation by estimating the depth of the scene and use warping and blending to generate new images \cite{zitnickHighqualityVideoView2004}.
+
+Recent \gls{nerf} methods build a continuous representation of the scene, usually by optimizing a neural network to predict the radiance at any point in space \cite{mildenhallNeRFRepresentingScenes2020a}.
+Ray marching is used to sample points from the scene to render the scene from a given viewpoint.
+A problem with this approach is that a lot of resources are wasted on rendering transparent or occluded parts of the scene, as the whole volume is sampled.
+Different new representation have been proposed to circumvent this problem, including using a sparse voxel grid \cite{yuPlenoxelsRadianceFields2021a}, a hash table \cite{mullerInstantNeuralGraphics2022} and points \cite{xuPointNeRFPointbasedNeural2023}.
+However, none of these methods appear to perform as well as the method proposed in the Gaussian Splatter paper, where they represent the scene using a set of Gaussian splats \cite{kerbl3DGaussianSplatting2023}.
+
+
+
+\begin{equation}
+    \hat{I}_i
+\end{equation}

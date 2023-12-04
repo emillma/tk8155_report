@@ -1,11 +1,25 @@
 \RequirePackage[T1]{fontenc}
 \LoadClass[journal]{IEEEtran}
 
+\RequirePackage[
+    backend=biber,
+    style=ieee,
+    maxbibnames=99,
+    minbibnames=3,
+    maxcitenames=2,
+    mincitenames=1,
+    citestyle=numeric-comp,
+    sorting=none,
+    dashed=false
+]{biblatex}                                 % for bibliography
+
 \RequirePackage{fontspec}
 \setmonofont{Fira Code Medium}[
     Contextuals=Alternate,
     Scale=.9  % Activate the calt feature
 ]
+% \RequirePackage{glossaries}
+\RequirePackage[automake, acronym, nonumberlist, nogroupskip, stylemods=longextra, toc=false]{glossaries-extra}
 
 % *** GRAPHICS RELATED PACKAGES ***
 %
@@ -232,7 +246,7 @@
 % There should be no need to do such things with IEEEtran.cls V1.6 and later.
 % (Unless specifically asked to do so by the journal or conference you plan
 % to submit to, of course. )
-
-
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
+
+

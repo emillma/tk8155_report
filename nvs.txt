@@ -1,0 +1,47 @@
+CREATE
+LAST	P31	Q30070675
+LAST	Den	"video recording published in 2021"
+LAST	P953	"https://www.youtube.com/watch?v=CRlN-cYFxTk"
+LAST	P577	+2021-04-19T00:00:00Z/11
+LAST	Len	"NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis (ML Research Paper Explained)"
+LAST	P1476	und:"NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis (ML Research Paper Explained)"
+CREATE
+LAST	P31	Q36774
+LAST	Den	"webpage"
+LAST	P953	"https://dynamic3dgaussians.github.io/"
+LAST	Len	"Dynamic 3D Gaussians: Tracking by Persistent Dynamic View Synthesis"
+LAST	P1476	und:"Dynamic 3D Gaussians: Tracking by Persistent Dynamic View Synthesis"
+CREATE
+LAST	P31	Q30070675
+LAST	Den	"video recording published in 2023"
+LAST	P953	"https://www.youtube.com/watch?v=jV1g5OY0L5s"
+LAST	P577	+2023-09-06T00:00:00Z/11
+LAST	Len	"Gaussian Splatting explorations"
+LAST	P1476	und:"Gaussian Splatting explorations"
+CREATE
+LAST	P31	Q13442814
+LAST	Den	"journal article from 'ACM Transactions on Graphics' published in 2023"
+LAST	P953	"https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/"
+LAST	P478	"42"
+LAST	P433	"4"
+LAST	P2093	"Bernhard Kerbl"	P1545	"1"
+LAST	P2093	"Georgios Kopanas"	P1545	"2"
+LAST	P2093	"Thomas Leimkühler"	P1545	"3"
+LAST	P2093	"George Drettakis"	P1545	"4"
+LAST	P577	+2023-07-00T00:00:00Z/10
+LAST	Len	"3D gaussian splatting for real-time radiance field rendering"
+LAST	P1476	und:"3D gaussian splatting for real-time radiance field rendering"
+CREATE
+LAST	P31	Q36774
+LAST	Den	"webpage"
+LAST	P953	"https://www.codercorner.com/RadixSortRevisited.htm"
+LAST	Len	"Radix Sort Revisited"
+LAST	P1476	und:"Radix Sort Revisited"
+CREATE
+LAST	P31	Q36774
+LAST	Den	"webpage published in 2019"
+LAST	P953	"https://jsantell.com/model-view-projection/"
+LAST	P577	+2019-04-14T00:00:00Z/11
+LAST	Len	"Model View Projection"
+LAST	P1476	en:"Model View Projection"
+LAST	P407	Q1860

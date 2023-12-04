@@ -2,45 +2,43 @@
 % From https://www.overleaf.com/learn/latex/Glossaries
 
 \makeglossaries
-
-
 \setabbreviationstyle[acronym]{long-postshort-user}
 \glssetcategoryattribute{acronym}{nohyperfirst}{true}
 
 \setabbreviationstyle{short-nolong}
 
 \renewcommand*{\glsxtruserparen}[2]{%
-  \glsxtrfullsep{#2}% space between long part and parenthetical material
-  (\glshyperlink[#1]{#2})%
+    \glsxtrfullsep{#2}% space between long part and parenthetical material
+    (\glshyperlink[#1]{#2})%
 }
 
 
 \newglossaryentry{latex}{
-  name=latex,
-  description={Is a mark up language specially suited for
-      scientific documents}
+    name=latex,
+    description={Is a mark up language specially suited for
+            scientific documents}
 }
 
 \newglossaryentry{bibliography}{
-  name=bibliography,
-  plural=bibliographies,
-  description={A list of the books referred to in a scholarly work,
-      typically printed as an appendix}
+    name=bibliography,
+    plural=bibliographies,
+    description={A list of the books referred to in a scholarly work,
+            typically printed as an appendix}
 }
 
 \newglossaryentry{maths}{
-  name=mathematics,
-  description={Mathematics is what mathematicians do}
+    name=mathematics,
+    description={Mathematics is what mathematicians do}
 }
 
 \newglossaryentry{jtop}{
-  name=jtop,
-  description={A tool for monitoring the Jetson Nano}
+    name=jtop,
+    description={A tool for monitoring the Jetson Nano}
 }
 
 \newglossaryentry{gigev}{
-  name=GigE Vision,
-  description={\todo}
+    name=GigE Vision,
+    description={\todo}
 }
 
 

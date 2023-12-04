@@ -166,17 +166,7 @@
 \RequirePackage{xcolor}                     % selecting text color
 \RequirePackage{emptypage}                  % empty pages should be blank
 \RequirePackage{csquotes}                   % recommended for biblatex
-\RequirePackage[
-    backend=biber,
-    style=ieee,
-    maxbibnames=99,
-    minbibnames=3,
-    maxcitenames=2,
-    mincitenames=1,
-    citestyle=numeric-comp,
-    sorting=none,
-    dashed=false
-]{biblatex}                                 % for bibliography
+
 \RequirePackage{csvsimple}                  % tables from csv files
 \RequirePackage{booktabs}                   % better formatting of tables
 \RequirePackage{gnuplottex}                 % for generating gnuplots on the fly
