@@ -1,13 +1,25 @@
 
 
-\section{Rendering Pipeline}
-
-\subsection{Splatter}
+\section{Paper Summary}
 
 \subsection{Representation}
+The core idea of the paper is to represent the scene as a set of Gaussians.
+Each Gaussian is defined by its position $\bm{p}$, its covariance matrix $\bm{\Sigma}$, its color $\bm{c}$ and its opacity $\alpha$.
+
+As the covariance has to be symmetric and positive definite, it is defined as
+\begin{align}
+    \bm{\Sigma} = \bm{R} \bm{S} \bm{S}^T \bm{R}^T,
+\end{align}
+where $\bm{R}$ is a rotation matrix stored as a quaternion $\bm{q}$ and $\bm{S}$ is a diagonal matrix containing the standard deviation of the Gaussian along each axis.
+To ensure that the covariance is positive definite, the diagonal elements of $\bm{S}$ are passed through a sigmoid function.
+The quaternion $\bm{q}$ is normalized to ensure a proper rotation matrix.
+
+% Similarly to other \cite{yuPlenoxelsRadianceFields2021a}\cite{mullerInstantNeuralGraphics2022}
+
+
 \subsubsection{Spherical Harmonics}
 
 
-\subsection{Rasterization}
 \subsubsection{Camera Projection}
+\subsection{Rasterization}
 \subsubsection{Sorting}

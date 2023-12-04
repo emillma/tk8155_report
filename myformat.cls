@@ -14,13 +14,14 @@
 ]{biblatex}                                 % for bibliography
 
 \RequirePackage{fontspec}
+\RequirePackage{bm}
 \setmonofont{Fira Code Medium}[
     Contextuals=Alternate,
     Scale=.9  % Activate the calt feature
 ]
 % \RequirePackage{glossaries}
 \RequirePackage[automake, acronym, nonumberlist, nogroupskip, stylemods=longextra, toc=false]{glossaries-extra}
-
+\RequirePackage{graphicx}
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
