@@ -2,6 +2,13 @@
 
 \section{Paper Summary}
 
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{images/pipeline.png}
+    \caption{The Gaussian splatting pipeline presented in the paper \cite[Fig. 2]{kerbl3DGaussianSplatting2023}.}
+\end{figure*}
+
+
 \subsection{Representation}
 The core idea of the paper is to represent the scene as a set of Gaussians.
 Each Gaussian is defined by its position $\bm{p}$, its covariance matrix $\bm{\Sigma}$, its color $\bm{c}$ and its opacity $\alpha$.
@@ -18,10 +25,25 @@ The quaternion $\bm{q}$ is normalized to ensure a proper rotation matrix.
 
 
 \subsubsection{Spherical Harmonics}
-
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{images/spherical_harmonics.png}
+    \caption{Visualization of the spherical harmonics used to represent the view-dependent color of each Gaussian \cite[Fig. 3]{kerbl3DGaussianSplatting2023}.}
+\end{figure}
 
 \subsubsection{Camera Projection}
 
 \subsection{Rasterization Pipeline}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{images/rendering.png}
+    \caption{Visualization of how Gaussian splats are rendered using multiple independent blocks.}
+\end{figure}
 \label{sec:rasterization}
-\subsubsection{Sorting}
+
+\subsection{Densification}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{images/densification.png}
+    \caption{The adaptive Gaussian densification scheme presented in the paper \cite[Fig. 4]{kerbl3DGaussianSplatting2023}.}
+\end{figure}

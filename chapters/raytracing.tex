@@ -1,19 +1,7 @@
-\section{Potential benefits of ray tracing}
-Going away from the current rasterization-based rendering pipeline and instead using ray tracing to render the scene has many potential benefits.
-
-\subsection{Ray Tracing}
-Ray tracing is a rendering technique that simulates the path of light rays through a scene.
-While rasterization is limited to rendering a scene from one viewpoint at a time, by projecting the scene onto a two-dimensional plane, ray tracing is not limited in this way \cite{caulfieldWhatPathTracing2022}
-As such, ray tracing can be used to perform path tracing, which is a physically based rendering technique that simulates the path of light rays through a scene \cite{caulfieldWhatPathTracing2022}.
-
-As ray tracing has become a key component of rendering in the gaming industry, specialized hardware has been developed to accelerate the process.
-Modern NVIDIA GPUs have dedicated \gls{rt} cores that can be used to accelerate ray tracing through the NVIDIA OptiX\textsuperscript{TM} API \cite{nvidiaNVIDIAOptiXProgramming2023}.
-
-A ray tracing pipeline consists of three main steps creating an acceleration structure,
-
-
-\subsection{Better Representation}
-In the current representation of each Gaussian, several extra steps are required to guarantee correctness.
+\section{A New Approach}
+While the Gaussian splatting method is very impressive, this section will discuss a potential new path for \gls{nvs} inspired by the Gaussian splatting method.
+The core idea is to leverage the power of hardware-accelerated ray tracing and replace the current rasterization pipeline with a ray tracing pipeline.
+Additionally, the use of polarization cameras might prove useful in this regard, as reflected light has a distinct polarization signature \cite{lingUniversityPhysicsVolume2016}.
 
 \subsection{Reflections}
 Reflections in the scene pose a significant challenge in the field of \gls{nvs}, as it requires the ability to capture view-dependent color.
@@ -27,6 +15,23 @@ However, with the use of ray tracing cores, rendering a reflected ray is no diff
 
 
 Using polarization cameras might prove very useful in this regard, as reflected light has a distinct polarization signature \cite{lingUniversityPhysicsVolume2016}.
+
+\subsection{Ray Tracing}
+Ray tracing is a rendering technique that simulates how rays of light traverse a scene.
+Unlike rasterization, which confines rendering to a single viewpoint at a time by projecting the scene onto a two-dimensional image plane, ray tracing can simultaneously render rays originating from multiple viewpoints \cite{caulfieldWhatPathTracing2022}.
+This capability empowers ray tracing programs to simulate lifelike lighting scenarios by estimating how light scatters and reflects off objects in the scene \cite{caulfieldWhatPathTracing2022}.
+
+As ray tracing has become a key component of rendering in the video game industry, specialized hardware has been developed to accelerate the process to achieve real-time performance.
+Modern NVIDIA GPUs have dedicated \gls{rt} cores that can be used to accelerate ray tracing through the NVIDIA OptiX\textsuperscript{TM} API \cite{nvidiaNVIDIAOptiXProgramming2023}.
+
+The main computational bottleneck of ray tracing is finding the intersections between the rays and the scene geometry.
+To speed up this process, a \gls{bvh} is used to store the scene geometry \cite{nvidiaNVIDIAOptiXProgramming2023}.
+A \gls{bvh} is a tree data structure that recursively divides the scene into smaller and smaller bounding boxes making it possible to quickly discard large parts of the scene that the ray does not intersect with \cite{nvidiaNVIDIAOptiXProgramming2023}.
+The \gls{rt} cores are specialized hardware that can traverse the \gls{bvh} and find the first intersection between a ray and the objects in the scene \cite{nvidiaNVIDIAOptiXProgramming2023}.
+
+\subsection{Better Representation}
+In the current representation of each Gaussian, several extra steps are required to guarantee correctness.
+
 
 
 

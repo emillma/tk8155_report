@@ -1,0 +1,17 @@
+\section{Critique and Potential Improvements}
+In this section, we will discuss certain elements of the paper that we believe could be improved.
+
+\subsection{Spherical Harmonics}
+In the current implementation, they use spherical harmonics to handle view-dependent color from reflections.
+They present this approach as ", following standard practice" referencing the Plenoxels and Instant Neural Graphics papers \cite{yuPlenoxelsRadianceFields2021a}\cite{mullerInstantNeuralGraphics2022}.
+The other methods both use a voxel-based representation of the scene,
+where the sampling of each point is independent of the view direction,
+making it necessary for each point to contain view-dependent color \cite{yuPlenoxelsRadianceFields2021a}\cite{mullerInstantNeuralGraphics2022}
+
+In the Gaussian splatting method, a discrete set of Gaussians is used to represent the scene, which could be leveraged to avoid the need for view-dependent color by making the opacity of each Gaussian dependent on the view direction.
+This could be used to have Gaussians that are only visible from a narrow range of view directions, placed in front of the scene geometry to simulate reflections.
+The paper shows that even without spherical harmonics, the scene converges to a good result \cite[Table 3]{kerbl3DGaussianSplatting2023}.
+We propose to remove the spherical harmonic coefficients from the representation of each Gaussian, reducing the parameter number from 60 to 15 and adding a second phase to the rendering pipeline to handle reflections.
+In this phase, we keep the converged scene constant and add a set of Gaussians with a view-dependent opacity to simulate reflections.
+
+A potential problem with this approach is the popping effect discussed in Section \ref{sec:popping}, which makes it difficult to optimize Gaussians laying on the surface of the scene geometry.
