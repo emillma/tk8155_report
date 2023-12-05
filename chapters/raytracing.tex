@@ -2,6 +2,7 @@
 While the Gaussian splatting method is very impressive, this section will discuss a potential new path for \gls{nvs} inspired by the Gaussian splatting method.
 The core idea is to leverage the power of hardware-accelerated ray tracing and replace the current rasterization pipeline with a ray tracing pipeline.
 Additionally, the use of polarization cameras might prove useful in this regard, as reflected light has a distinct polarization signature \cite{lingUniversityPhysicsVolume2016}.
+This
 
 \subsection{Reflections}
 Reflections in the scene pose a significant challenge in the field of \gls{nvs}, as it requires the ability to capture view-dependent color.
@@ -29,10 +30,25 @@ To speed up this process, a \gls{bvh} is used to store the scene geometry \cite{
 A \gls{bvh} is a tree data structure that recursively divides the scene into smaller and smaller bounding boxes making it possible to quickly discard large parts of the scene that the ray does not intersect with \cite{nvidiaNVIDIAOptiXProgramming2023}.
 The \gls{rt} cores are specialized hardware that can traverse the \gls{bvh} and find the first intersection between a ray and the objects in the scene \cite{nvidiaNVIDIAOptiXProgramming2023}.
 
-\subsection{Better Representation}
-In the current representation of each Gaussian, several extra steps are required to guarantee correctness.
+\subsection{Triangle Representation}
+While Optix supports custom primitive types, making the use of Gaussians possible, operations on custom primitives are not only partially accelerated by the \gls{rt} cores \cite{nvidiaOptiXQuickStart2018}\cite{nvidiaNVIDIAOptiXProgramming2023}.
+This makes the use of triangles a more attractive option.
+The implementation in the paper projects the Gaussians onto the image plane, so they are not performing any volumetric rendering.
+This makes it likely that using triangles should also be possible.
 
 
+
+Another small advantage of using triangles is the ability to perform backface culling, where triangles facing away from the camera are discarded, reducing the number of triangles that have to be tested for intersection.
+
+\subsection{Regularization}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{images/alphas.png}
+    \caption{Experimentation with different polynomial functions on barycentric coordinate values to obtain a smooth opacity function. The lower right vertex of each triangle has opacity 0 to test vertex-dependent opacity.}
+    \label{fig:alphas}
+\end{figure}
 
 
 
