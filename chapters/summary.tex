@@ -21,6 +21,10 @@ where $\bm{R}$ is a rotation matrix stored as a quaternion $\bm{q}$ and $\bm{S}$
 To ensure that the covariance is positive definite, the diagonal elements of $\bm{S}$ are passed through a sigmoid function.
 The quaternion $\bm{q}$ is normalized to ensure a proper rotation matrix.
 
+\begin{align}
+    C = \sum_{i \in N} c_i a_i \prod_{j=1}^{i-1} (1-a_j)
+    \label{eq:alpha_blending}
+\end{align}
 % Similarly to other \cite{yuPlenoxelsRadianceFields2021a}\cite{mullerInstantNeuralGraphics2022}
 
 

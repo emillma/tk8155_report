@@ -4,18 +4,6 @@ The core idea is to leverage the power of hardware-accelerated ray tracing and r
 Additionally, the use of polarization cameras might prove useful in this regard, as reflected light has a distinct polarization signature \cite{lingUniversityPhysicsVolume2016}.
 This
 
-\subsection{Reflections}
-Reflections in the scene pose a significant challenge in the field of \gls{nvs}, as it requires the ability to capture view-dependent color.
-As discussed earlier, the use of spherical harmonics solves this to some degree, but it comes at a significant memory cost.
-When using ray tracing, it might be possible to circumvent the need for view-dependent color by using ray-traced reflections.
-
-Without the use of ray tracing cores, this is impossible, as the whole rendering pipeline for the Gaussian splats, discussed in Section \ref{sec:rasterization}, would have to be performed for each reflected ray as they would not share the same origin.
-This would make the rendering process several million times slower.
-
-However, with the use of ray tracing cores, rendering a reflected ray is no different than rendering a regular ray \footnote{It might be slightly worse due to data locality, but this should be handled by the hardware.}.
-
-
-Using polarization cameras might prove very useful in this regard, as reflected light has a distinct polarization signature \cite{lingUniversityPhysicsVolume2016}.
 
 \subsection{Ray Tracing}
 Ray tracing is a rendering technique that simulates how rays of light traverse a scene.
@@ -40,9 +28,6 @@ This makes it likely that using triangles should also be possible.
 
 Another small advantage of using triangles is the ability to perform backface culling, where triangles facing away from the camera are discarded, reducing the number of triangles that have to be tested for intersection.
 
-\subsection{Regularization}
-
-
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{images/alphas.png}
@@ -50,6 +35,39 @@ Another small advantage of using triangles is the ability to perform backface cu
     \label{fig:alphas}
 \end{figure}
 
+\subsection{Remove Popping Artifacts}
+As discussed, a key issue with the current implementation is popping artifacts where Gaussians suddenly appear or disappear behind other Gaussians.
+Raytracing will solve most of this issue as the projection approximation described in Section \ref{sec:projection} is no longer needed.
+Still, in the intersection area between two triangles, the gradients will be discontinuous due to how alpha blending works, as shown in Equation \ref{eq:alpha_blending}.
+
+A potential approach to solving this and achieving a smooth transition when triangles move through each other,
+is to use a dynamic alpha blending function where the ray distance between the current triangle intersection and the previous triangle intersection is taken into account.
+This does however appear to create a lot of dependence between the triangles, as the alpha value of each triangle is dependent on the alpha value of the next triangle which is dependent on the alpha value of the next triangle and so on.
+
+
+\subsection{Inter Triangle Regularization}
+A key benefit of capturing the intersections between rays and triangles is that we can perform inter-triangle regularization.
+For each intersection point with a triangle, we can capture information about the distance and color of the previous and next intersection points.
+If the distances are within some adaptive threshold, we can add a regularization term to the loss function, such that neighboring triangles should stick together.
+Hopefully, this will help towards having smoother surfaces and aligning the face normal of neighboring triangles.
+
+\subsection{Reflections}
+Reflections in the scene pose a significant challenge in the field of \gls{nvs}, as it requires the ability to capture view-dependent color.
+As discussed earlier, the use of spherical harmonics solves this to some degree, but it comes at a significant memory cost.
+When using ray tracing, it might be possible to circumvent the need for view-dependent color by using ray-traced reflections.
+
+Without the use of ray tracing cores, this is impossible, as the whole rendering pipeline for the Gaussian splats, discussed in Section \ref{sec:rasterization}, would have to be performed for each reflected ray as they would not share the same origin.
+This would make the rendering process several million times slower.
+But with the use of ray tracing cores, rendering a reflected ray is no different than rendering a regular ray \footnote{It might be slightly worse due to data locality, but this should be handled by the hardware.}.
+
+It is however still very likely that it is infeasible to optimize the scene with reflections.
+A core reason for this is that it is very expensive to capture glossy reflections, such as light reflected from a table surface, as statistical sampling with a large number of sample rays is required to get a good result.
+Another key challenge is that a very small change in the orientation of a triangle can have large effects on the reflected light, resulting in very sharp gradients.
+
+
+\subsection{Leverage Polarization}
+
+, as reflected light has a distinct polarization signature \cite{lingUniversityPhysicsVolume2016}.
 
 
 The simple approach would be to remove reflected light from the scene and partially circumvent the need for view-dependent color.
@@ -59,9 +77,6 @@ The results from this approach will however look different than what a regular c
 Another, arguably more interesting, approach would be to use the polarization information to estimate the surface normal of each triangle and calculate ray-traced reflections.
 As the polarization cameras can capture the angle of polarization for each pixel, using multiple views it should be possible to estimate the three-dimensional surface normals with some degree of accuracy.
 This approach has been presented by one manufacturer of polarization cameras as shown in Figure \ref{fig:polarization} \cite{lucidvisionlabs3DDepthSurface2021}.
-
-
-
 
 
 \begin{figure}
