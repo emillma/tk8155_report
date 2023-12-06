@@ -23,9 +23,14 @@ where $\bm{R}$ is a rotation matrix stored as a quaternion $\bm{q}$ and $\bm{S}$
 To ensure that the covariance is positive definite, the values of $\bm{s}$ are passed through a sigmoid activation function, and quaternion $\bm{q}$ is normalized to ensure a proper rotation matrix.
 In total, each Gaussian has 59 parameters, 3 for the position, 3 for the scale, 4 for the quaternion 1 for alpha and 48 for the spherical harmonic coefficients.
 
+\subsection{Spherical Harmonics}
+The first step in the rendering process, which is sort of overlooked in the paper, is to calculate the color of each Gaussian for a given view direction.
+This is done using spherical harmonics, which can be seen as a spherical equivalent of the discrete cosine transform
+A key advantage of spherical harmonics is that they are differentiable and continuous.
 
 \subsection{Projection}
-The first step of the rendering pipeline, shown in Figure \ref{fig:pipeline}, is to project the Gaussians onto the image plane.
+\label{sec:projection}
+The next step of the rendering pipeline, shown in Figure \ref{fig:pipeline}, is to project the Gaussians onto the image plane.
 First, the Gaussians are transformed into the camera frame using a linear view transformation $\bm{W}$.
 Then the Gaussians are projected onto the image plane using a pinhole projection.
 This transformation is visualized by comparing Figure \ref{fig:proj_2a} and Figure \ref{fig:proj_2b}.
@@ -47,8 +52,8 @@ First, instead of accurately projecting the Gaussians onto the image plane, a li
 where $\bm{J}$ is the Jacobian of the projection function.
 The result of this approximation is visualized as the two dotted ellipses in Figure \ref{fig:proj_2b}.
 
-A second significant speedup step is to remove the depth component of the projected Gaussians, resulting in a 2D Gaussian with position $\bm{\mu}''$ and covariance $\bm{\Sigma}''$, visualized as a line in Figure \ref{fig:proj_2b}.
-The key benefit of this is that the depth ordering of the Gaussians is identical for each pixel.
+A second significant speedup step is to flatten the projected Gaussians by only looking at their first two dimensions, resulting in 2D Gaussian with position $\bm{\mu}''$ and covariance $\bm{\Sigma}''$, visualized as a line in Figure \ref{fig:proj_2b}.
+The key benefit of this is that the depth ordering of the Gaussians is identical for each pixel, which would not be the case otherwise as seen in Figure \ref{fig:proj_2b}.
 This does however introduce a significant issue, where small changes in view direction can decide which Gaussian is in front of another Gaussian, resulting in strong popping artifacts, which the paper acknowledges \cite[Sec 7.4]{kerbl3DGaussianSplatting2023}.
 
 \begin{figure}[htb]
@@ -58,36 +63,52 @@ This does however introduce a significant issue, where small changes in view dir
     \label{fig:proj_2b}
 \end{figure}
 
-\begin{align}
-    G(\bm{x}) & =  \label{eq:gaussian_density_function}
-\end{align}
-where $\bm{x}$.
-
 
 \subsection{Rasterization Pipeline}
-As shown in Figure \ref{fig:pipeline}, the rendering pipeline consists of two phases, a projection phase and a rasterization phase.
-
 \label{sec:rasterization}
+After the projection is complete, we have a set of 2D Gaussians that need to be rendered.
+To achieve high frame rates, the paper uses a rasterization pipeline where the output image first is divided into 265 blocks.
+Then they check which blocks each projected Gaussian overlaps with by drawing a circle with a radius of three times the largest eigenvalue of the covariance matrix, as shown in Figure \ref{fig:rendering}.
+Gaussians outside the image plane or with a size smaller than one pixel are discarded, e.g. Gaussian D and E in Figure \ref{fig:rendering}
+Then, they duplicate each Gaussian for each block it overlaps with and sort the Gaussians, first, according to the block they belong to and then according to their depth value.
+This sorting is performed only once per iteration and they combine the block-index bits and depth bits into a single integer to perform both sorts in a single pass using parallel radix sort.
+
+Each block is then responsible for non-overlapping sequential sections of the sorted output.
+The color of each rendered pixel is calculated by iterating over the Gaussians in the block and blending them together using the alpha blending function given by
+\begin{align}
+    C   & = \sum_{i \in N} c_i a_i \prod_{j=1}^{i-1} (1-a_j)                                                     \\
+    a_i & = \alpha_i \cdot exp(-\frac{1}{2}(\bm{x}-\bm{\mu}''_i)^T \bm{\Sigma}{''}_i^{-1} (\bm{x}-\bm{\mu}''_i))
+    \label{eq:alpha_blending}
+\end{align}
+where $C$ is the resulting color, $c_i$ is the color of the $i$'th Gaussian calculated from the view direction and its spherical harmonic coefficients, $a_i$ is the opacity of the $i$th Gaussian.
+
 \begin{figure}
     \centering
     \includegraphics[width=0.6\linewidth]{images/rendering.png}
-    \caption{Visualization of how Gaussian splats are rendered using multiple independent blocks.}
+    \caption{Visualization of how Gaussian splats are rendered using multiple independent blocks. The dotted lines are from drawing a circle with a radius of three times the largest eigenvalue of the covariance matrix.}
+    \label{fig:rendering}
 \end{figure}
 
-After dubplicating, sorting and separating the projected gaussians, each pixel is rendered independently following a standard alpha blending approach with the following blending function,
 
+\subsection{Backpropagation}
+The paper L1 loss together with structural dissimilarity index (D-SSIM) loss.
 \begin{align}
-    C   & = \sum_{i \in N} c_i a_i \prod_{j=1}^{i-1} (1-a_j)                                           \\
-    a_i & = \alpha_i e^{-\frac{1}{2}(\bm{x}-\bm{\mu}''_i)^T\bm{\Sigma''}_i^{-1} (\bm{x}-\bm{\mu}''_i)}
-    \label{eq:alpha_blending}
+    \mathcal{L} = (1 - \lambda) \mathcal{L}_1 + \lambda \mathcal{L}_{D-SSIM}
 \end{align}
+They have implemented custom CUDA accelerated backward pass functions for both the rasterization, projection and spherical harmonics steps that utilize cached information from the forward pass for speedup.
 
 
-where $C$ is the resulting color, $c_i$ is the color of the $i$'th Gaussian calculated from the view direction and its spherical harmonic coefficients, $a_i$ is the opacity of the $i$'th Gaussian which is the product of its overall opacity $\alpha_i$ and the evaluation of the Gaussian density function at the pixel location of the 2D projected Gaussian given in Equation \ref{eq:gaussian_density_function}.
 
-\subsection{Densification}
+\subsection{Densification and Pruning}
+In the paper, they use adaptive density control to generate Gaussians in areas where they are needed and remove unnecessary Gaussians to reduce memory usage.
+
+For both the densification methods they simply check if a Gaussian has had large gradients with respect to position, e.g. if they have moved a lot around over the past 300 iterations.
+They argue this either because the Gaussian is moving to an area that is underrepresented or if the Gaussian is to big to fit the area it is in \cite[Sec 5.2]{kerbl3DGaussianSplatting2023}.
+If the Gaussian is smaller than a certain threshold, it is cloned, and if it is larger than a certain threshold, it is split into two smaller Gaussians, as shown in Figure \ref{fig:densification}.
+
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{images/densification.png}
     \caption{The adaptive Gaussian densification scheme presented in the paper \cite[Fig. 4]{kerbl3DGaussianSplatting2023}.}
+    \label{fig:densification}
 \end{figure}
