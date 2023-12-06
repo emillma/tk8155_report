@@ -15,7 +15,7 @@ but share the same general problem formulation;
 Given a set of training images $\bm{I}_i$,
 taken from different views $\bm{V}_i$,
 the goal is to find a representation of the scene $\bm{S}$,
-together with a image generating function $\bm{\hat{I}}_i = g(\bm{S}, \bm{V}_i)$,
+together with a image generating, i.e. rendering, function $\bm{\hat{I}}_i = g(\bm{S}, \bm{V}_i)$,
 such that some cost function $\mathcal{L}(\bm{I}_i, \bm{\hat{I}}_i)$,
 is minimized over all training images.
 
@@ -25,23 +25,20 @@ This includes the time it takes to generate an image, the memory required to sto
 
 
 
-\section{Previous Work}
+\subsection{Related Works}
 \gls{nvs} is a well-studied problem in computer vision, and many different approaches have been proposed.
 Older methods achieved decent image interpolation by estimating the depth of the scene to correctly warp and blend adjacent images \cite{zitnickHighqualityVideoView2004}.
-The
 
-% With the development of \gls{sfm} methods
-the introduction of \gls{nerf} methods had a big  \cite{mildenhallNeRFRepresentingScenes2020a}.
+A big leap in performance was achieved with the introduction of \gls{nerf} methods, where a continuous representation of the scene is built by optimizing a neural network to predict the color and opacity at any point in the scene given a direction \cite{mildenhallNeRFRepresentingScenes2020a}.
+A severe limitation of this approach however is the amount of time it takes to train the model, partially because a lot of resources are wasted on rendering transparent or occluded parts of the scene, as the whole volume is sampled.
 
+Plenoxels dropped the costly neural network and instead represented the scene using a sparse voxel grid \cite{yuPlenoxelsRadianceFields2021a}.
+Point sampling is still used but is now calculated by blending the values stored in the vertices of the voxel grid, resulting in a significant speedup. Spherical harmonics are used to represent the view-dependent color of each voxel \cite{yuPlenoxelsRadianceFields2021a}.
 
+Related to this, Instant Neural Graphics introduced using multiple voxel grids at different levels of detail and a multi-level hash table to look up the closest vertices \cite{mullerInstantNeuralGraphics2022}.
+They also optimized two \glspl{mpl} together with the vertex values to give the opacity and color of each voxel \cite{mullerInstantNeuralGraphics2022}.
 
+None of the previous methods are very similar to Gaussian Splatting but are still relevant as they are the current state-of-the-art methods for \gls{nvs}.
 
-Older methods have achieved good image interpolation by estimating the depth of the scene and use warping and blending to generate new images \cite{zitnickHighqualityVideoView2004}.
-
-Recent \gls{nerf} methods build a continuous representation of the scene, usually by optimizing a neural network to predict the radiance at any point in space \cite{mildenhallNeRFRepresentingScenes2020a}.
-Ray marching is used to sample points from the scene to render the scene from a given viewpoint.
-A problem with this approach is that a lot of resources are wasted on rendering transparent or occluded parts of the scene, as the whole volume is sampled.
-Different new representations have been proposed to circumvent this problem, including using a sparse voxel grid \cite{yuPlenoxelsRadianceFields2021a}, a hash table \cite{mullerInstantNeuralGraphics2022} and points \cite{xuPointNeRFPointbasedNeural2023}.
-However, none of these methods appear to perform as well as the method proposed in the Gaussian Splatter paper, where they represent the scene using a set of Gaussian splats \cite{kerbl3DGaussianSplatting2023}.
 
 

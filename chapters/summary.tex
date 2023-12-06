@@ -25,8 +25,9 @@ In total, each Gaussian has 59 parameters, 3 for the position, 3 for the scale, 
 
 \subsection{Spherical Harmonics}
 The first step in the rendering process, which is sort of overlooked in the paper, is to calculate the color of each Gaussian for a given view direction.
-This is done using spherical harmonics, which can be seen as a spherical equivalent of the discrete cosine transform
+This is done using spherical harmonics, which can be seen as a spherical equivalent of the discrete cosine transform.
 A key advantage of spherical harmonics is that they are differentiable and continuous.
+
 
 \subsection{Projection}
 \label{sec:projection}
@@ -54,7 +55,7 @@ The result of this approximation is visualized as the two dotted ellipses in Fig
 
 A second significant speedup step is to flatten the projected Gaussians by only looking at their first two dimensions, resulting in 2D Gaussian with position $\bm{\mu}''$ and covariance $\bm{\Sigma}''$, visualized as a line in Figure \ref{fig:proj_2b}.
 The key benefit of this is that the depth ordering of the Gaussians is identical for each pixel, which would not be the case otherwise as seen in Figure \ref{fig:proj_2b}.
-This does however introduce a significant issue, where small changes in view direction can decide which Gaussian is in front of another Gaussian, resulting in strong popping artifacts, which the paper acknowledges \cite[Sec 7.4]{kerbl3DGaussianSplatting2023}.
+This does however introduce a significant problem, where small changes in view direction can decide which Gaussian is in front of another Gaussian, resulting in strong popping artifacts, which the paper acknowledges \cite[Sec 7.4]{kerbl3DGaussianSplatting2023}.
 
 \begin{figure}[htb]
     \centering
@@ -68,7 +69,7 @@ This does however introduce a significant issue, where small changes in view dir
 \label{sec:rasterization}
 After the projection is complete, we have a set of 2D Gaussians that need to be rendered.
 To achieve high frame rates, the paper uses a rasterization pipeline where the output image first is divided into 265 blocks.
-Then they check which blocks each projected Gaussian overlaps with by drawing a circle with a radius of three times the largest eigenvalue of the covariance matrix, as shown in Figure \ref{fig:rendering}.
+Then they check which blocks each projected Gaussian overlaps with by drawing a circle with a radius of three times the largest eigenvalue of the covariance matrix, as illustrated in Figure \ref{fig:rendering}.
 Gaussians outside the image plane or with a size smaller than one pixel are discarded, e.g. Gaussian D and E in Figure \ref{fig:rendering}
 Then, they duplicate each Gaussian for each block it overlaps with and sort the Gaussians, first, according to the block they belong to and then according to their depth value.
 This sorting is performed only once per iteration and they combine the block-index bits and depth bits into a single integer to perform both sorts in a single pass using parallel radix sort.
@@ -80,7 +81,7 @@ The color of each rendered pixel is calculated by iterating over the Gaussians i
     a_i & = \alpha_i \cdot exp(-\frac{1}{2}(\bm{x}-\bm{\mu}''_i)^T \bm{\Sigma}{''}_i^{-1} (\bm{x}-\bm{\mu}''_i))
     \label{eq:alpha_blending}
 \end{align}
-where $C$ is the resulting color, $c_i$ is the color of the $i$'th Gaussian calculated from the view direction and its spherical harmonic coefficients, $a_i$ is the opacity of the $i$th Gaussian.
+where $C$ is the resulting color, $c_i$ is the color of the $i$'th Gaussian calculated from the view direction and its spherical harmonic coefficients and $a_i$ is the evaluated opacity.
 
 \begin{figure}
     \centering
@@ -102,8 +103,8 @@ They have implemented custom CUDA accelerated backward pass functions for both t
 \subsection{Densification and Pruning}
 In the paper, they use adaptive density control to generate Gaussians in areas where they are needed and remove unnecessary Gaussians to reduce memory usage.
 
-For both the densification methods they simply check if a Gaussian has had large gradients with respect to position, e.g. if they have moved a lot around over the past 300 iterations.
-They argue this either because the Gaussian is moving to an area that is underrepresented or if the Gaussian is to big to fit the area it is in \cite[Sec 5.2]{kerbl3DGaussianSplatting2023}.
+For both the densification methods they simply check if a Gaussian has had large gradients with respect to position, i.e. if they have moved a lot around over the past 300 iterations.
+They argue this happens when the Gaussian is moving to an area that is underrepresented or if the Gaussian is to big to fit the area it is in \cite[Sec 5.2]{kerbl3DGaussianSplatting2023}.
 If the Gaussian is smaller than a certain threshold, it is cloned, and if it is larger than a certain threshold, it is split into two smaller Gaussians, as shown in Figure \ref{fig:densification}.
 
 \begin{figure}

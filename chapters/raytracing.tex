@@ -20,8 +20,8 @@ The \gls{rt} cores are specialized hardware that can traverse the \gls{bvh} and 
 \subsection{Triangle Representation}
 While Optix supports custom primitive types, making the use of Gaussians possible, operations on custom primitives are only partially accelerated by the \gls{rt} cores \cite{nvidiaOptiXQuickStart2018}\cite{nvidiaNVIDIAOptiXProgramming2023}.
 This makes the use of triangles a more attractive option.
-The implementation in the paper projects the Gaussians onto the image plane, e.g. they are not performing any volumetric rendering.
-This makes it likely that using triangles should also be possible.
+The implementation in the paper projects the Gaussians onto the image plane, i.e. they are not performing any volumetric rendering,
+making it likely that using triangles also should be possible.
 
 Instead of storing position, orientation and scale parameters, we can store the position color and opacity of the three vertices of the triangle.
 This representation is simpler than the Gaussian representation and removes the necessity for activation functions used to ensure a positive definite covariance matrix.
@@ -48,14 +48,14 @@ The optimization process will however be different.
 During the rendering process, information about each intersection will be captured and stored in a buffer.
 Taking inspiration from the paper, after the rendering passes the collection of intersections can be sorted by the index of the triangle they intersect with.
 Then for each triangle, an optimization function can be defined based on the collection of intersections with that triangle.
-Having information about all
+Having information about all the intersections on each triangle can be leveraged to perform smarter optimization steps, as illustrated in Figure \ref{fig:optimization}.
 
 
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{images/optimization.png}
-    \caption{Three illustrative examples of how intersection information can be used to delete, reshape move and regularize triangles. The color of the rays is the color of the pixel from which it originates.}
+    \caption{Four illustrative examples of how intersection information can be used to delete, reshape move and regularize triangles. The color of the rays is the color of the pixel from which it originates.}
     \label{fig:optimization}
 \end{figure}
 
@@ -64,16 +64,16 @@ As discussed, a key issue with the current implementation is popping artifacts w
 Raytracing will solve most of this issue as the projection approximation described in Section \ref{sec:projection} is no longer needed.
 Still, in the intersection area between two triangles, the gradients will be discontinuous due to how alpha blending works, as shown in Equation \ref{eq:alpha_blending}.
 
-A potential approach to solving this and achieving a smooth transition when triangles move through each other,
-is to use a dynamic alpha blending function where the ray distance between the current triangle intersection and the previous triangle intersection is taken into account.
-This does however appear to create a lot of dependence between the triangles, as the alpha value of each triangle is dependent on the alpha value of the next triangle which is dependent on the alpha value of the next triangle and so on.
-
+A potential approach to solving this, achieving a smooth transition when triangles move through each other,
+is to use a dynamic alpha blending function where the ray distance between the current triangle intersection and the next triangle intersection is taken into account.
+This will however create a lot of dependence between the triangles, as the alpha value of each triangle is dependent on the alpha value of the next triangle which is dependent on the alpha value of the next triangle and so on.
 
 \subsection{Inter Triangle Regularization}
 A key benefit of capturing the intersections between rays and triangles is that we can perform inter-triangle regularization.
 For each intersection point with a triangle, we can capture information about the distance and color of the previous and next intersection points.
 If the distances are within some adaptive threshold, we can add a regularization term to the loss function, such that neighboring triangles should stick together.
 Hopefully, this will help towards having smoother surfaces and aligning the face normal of neighboring triangles.
+This is illustrated in the rightmost example in Figure \ref{fig:optimization}.
 
 \subsection{Reflections}
 Reflections in the scene pose a significant challenge in the field of \gls{nvs}, as it requires the ability to capture view-dependent color.
@@ -90,11 +90,8 @@ Another key challenge is that a very small change in the orientation of a triang
 
 
 \subsection{Leverage Polarization}
-
-, as reflected light has a distinct polarization signature \cite{lingUniversityPhysicsVolume2016}.
-
-
-The simple approach would be to remove reflected light from the scene and partially circumvent the need for view-dependent color.
+Using polarization cameras might be a way to circumvent the need for view-dependent color.
+The simple approach would be to remove reflected light from the scene.
 This approach only targets the input data and should thus be easy to evaluate using the implementation from the paper.
 The results from this approach will however look different than what a regular camera would capture, as the reflected light is partially removed.
 
@@ -105,13 +102,7 @@ This approach has been presented by one manufacturer of polarization cameras as 
 def
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{images/polarization_normals.png}
+    \includegraphics[width=.9\linewidth]{images/polarization_normals.png}
     \caption{Angle of orientation and estimated surface normals from polarized light \cite{lucidvisionlabs3DDepthSurface2021}}.
     \label{fig:polarization}
 \end{figure}
-
-
-\subsection{Intuitive Implementation}
-A benefit of working with ray tracing is that implementation in many ways can be more intuitive than rasterization.
-Instead of thinking about how to transform and project each scene geometry into the camera frame, we can instead think about how rays of light traverse the scene.
-

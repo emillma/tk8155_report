@@ -25,8 +25,11 @@ def alpha1(u, v, w):
     
 def alpha2(u, v, w):
     return (u*v*w)**2
+
 def alpha3(u, v, w):
-    return (u*v*w)**2 *0.95 + (u*v*w) *0.05 
+    return (1-u)*(1-v)*np.minimum(2*w,1)
+# def alpha3(u, v, w):
+#     return (u*v*w)**2 *0.95 + (u*v*w) *0.05 
 
 def final(e, k):
     def alpha3(u, v, w):
@@ -59,7 +62,7 @@ v1 = np.array([[0,0],
               [1,0],
               [.5,sin60]])
 c = np.array([[1,0,0,1],
-              [1,0,0,0],
+              [1,0,0,1],
               [0,0,1,1]])
 
 dense(ax, v1, c, alpha1)
