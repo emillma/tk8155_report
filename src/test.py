@@ -9,6 +9,8 @@ p = Projection(1, 0.5, 16)
 s1 = Splat((12.5, 0), (2, -2), 0.3)
 s2 = Splat((13, 0), (2, 2), 0.3)
 
+
+
 for s, c in zip([s1, s2], ["C0", "C1"]):
     p.plot_world(*s.ellipse_points, c=c)
     p.plot_proj(*s.ellipse_points, c=c)

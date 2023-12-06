@@ -2,13 +2,11 @@
 While the Gaussian splatting method is very impressive, this section will discuss a potential new path for \gls{nvs} inspired by the Gaussian splatting method.
 The core idea is to leverage the power of hardware-accelerated ray tracing and replace the current rasterization pipeline with a ray tracing pipeline.
 Additionally, the use of polarization cameras might prove useful in this regard, as reflected light has a distinct polarization signature \cite{lingUniversityPhysicsVolume2016}.
-This
-
 
 \subsection{Ray Tracing}
 Ray tracing is a rendering technique that simulates how rays of light traverse a scene.
 Unlike rasterization, which confines rendering to a single viewpoint at a time by projecting the scene onto a two-dimensional image plane, ray tracing can simultaneously render rays originating from multiple viewpoints \cite{caulfieldWhatPathTracing2022}.
-This capability empowers ray tracing programs to simulate lifelike lighting scenarios by estimating how light scatters and reflects off objects in the scene \cite{caulfieldWhatPathTracing2022}.
+This capability lets ray tracing programs simulate lifelike lighting scenarios by estimating how light scatters and reflects off objects in the scene \cite{caulfieldWhatPathTracing2022}.
 
 As ray tracing has become a key component of rendering in the video game industry, specialized hardware has been developed to accelerate the process to achieve real-time performance.
 Modern NVIDIA GPUs have dedicated \gls{rt} cores that can be used to accelerate ray tracing through the NVIDIA OptiX\textsuperscript{TM} API \cite{nvidiaNVIDIAOptiXProgramming2023}.
@@ -16,23 +14,49 @@ Modern NVIDIA GPUs have dedicated \gls{rt} cores that can be used to accelerate 
 The main computational bottleneck of ray tracing is finding the intersections between the rays and the scene geometry.
 To speed up this process, a \gls{bvh} is used to store the scene geometry \cite{nvidiaNVIDIAOptiXProgramming2023}.
 A \gls{bvh} is a tree data structure that recursively divides the scene into smaller and smaller bounding boxes making it possible to quickly discard large parts of the scene that the ray does not intersect with \cite{nvidiaNVIDIAOptiXProgramming2023}.
-The \gls{rt} cores are specialized hardware that can traverse the \gls{bvh} and find the first intersection between a ray and the objects in the scene \cite{nvidiaNVIDIAOptiXProgramming2023}.
+The \gls{rt} cores are specialized hardware that can traverse the \gls{bvh} and find intersections between rays and scene objects very fast \cite{nvidiaNVIDIAOptiXProgramming2023}.
+
 
 \subsection{Triangle Representation}
-While Optix supports custom primitive types, making the use of Gaussians possible, operations on custom primitives are not only partially accelerated by the \gls{rt} cores \cite{nvidiaOptiXQuickStart2018}\cite{nvidiaNVIDIAOptiXProgramming2023}.
+While Optix supports custom primitive types, making the use of Gaussians possible, operations on custom primitives are only partially accelerated by the \gls{rt} cores \cite{nvidiaOptiXQuickStart2018}\cite{nvidiaNVIDIAOptiXProgramming2023}.
 This makes the use of triangles a more attractive option.
-The implementation in the paper projects the Gaussians onto the image plane, so they are not performing any volumetric rendering.
+The implementation in the paper projects the Gaussians onto the image plane, e.g. they are not performing any volumetric rendering.
 This makes it likely that using triangles should also be possible.
 
+Instead of storing position, orientation and scale parameters, we can store the position color and opacity of the three vertices of the triangle.
+This representation is simpler than the Gaussian representation and removes the necessity for activation functions used to ensure a positive definite covariance matrix.
+The density function of each triangle can be calculated using the barycentric coordinates of the intersection point, as this is supplied by Optix \cite{nvidiaNVIDIAOptiXProgramming2023}.
+Several different polynomial-based functions have been tested to obtain a smooth opacity function, as shown in Figure \ref{fig:alphas}.
 
+Hypothetically, it could be possible to use meshes instead of individual triangles, that is multiple triangles sharing the same vertices, as this is also supported by Optix \cite{nvidiaNVIDIAOptiXProgramming2023}.
+This will make a scene representation more compact but will make the optimization problem more complex.
 
-Another small advantage of using triangles is the ability to perform backface culling, where triangles facing away from the camera are discarded, reducing the number of triangles that have to be tested for intersection.
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{images/alphas.png}
     \caption{Experimentation with different polynomial functions on barycentric coordinate values to obtain a smooth opacity function. The lower right vertex of each triangle has opacity 0 to test vertex-dependent opacity.}
     \label{fig:alphas}
+\end{figure}
+
+\subsection{Program Structure}
+The program structure will be similar to the current implementation, with a few key differences.
+As ray tracing is used, there is no need for any projection step as described in Section \ref{sec:projection}.
+The rendering process for each pixel in the paper will be matched by a rendering process for each ray in the new implementation, using the same blending function as described in Equation \ref{eq:alpha_blending}.
+
+The optimization process will however be different.
+During the rendering process, information about each intersection will be captured and stored in a buffer.
+Taking inspiration from the paper, after the rendering passes the collection of intersections can be sorted by the index of the triangle they intersect with.
+Then for each triangle, an optimization function can be defined based on the collection of intersections with that triangle.
+Having information about all
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{images/optimization.png}
+    \caption{Three illustrative examples of how intersection information can be used to delete, reshape move and regularize triangles. The color of the rays is the color of the pixel from which it originates.}
+    \label{fig:optimization}
 \end{figure}
 
 \subsection{Remove Popping Artifacts}
@@ -78,7 +102,7 @@ Another, arguably more interesting, approach would be to use the polarization in
 As the polarization cameras can capture the angle of polarization for each pixel, using multiple views it should be possible to estimate the three-dimensional surface normals with some degree of accuracy.
 This approach has been presented by one manufacturer of polarization cameras as shown in Figure \ref{fig:polarization} \cite{lucidvisionlabs3DDepthSurface2021}.
 
-
+def
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{images/polarization_normals.png}
@@ -87,9 +111,7 @@ This approach has been presented by one manufacturer of polarization cameras as 
 \end{figure}
 
 
+\subsection{Intuitive Implementation}
+A benefit of working with ray tracing is that implementation in many ways can be more intuitive than rasterization.
+Instead of thinking about how to transform and project each scene geometry into the camera frame, we can instead think about how rays of light traverse the scene.
 
-
-
-
-\subsection{Code closer to Problem formulation}
-There is a significant difference between how the problem is formulated in the paper and how

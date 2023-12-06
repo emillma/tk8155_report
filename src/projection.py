@@ -19,7 +19,7 @@ class Projection:
     near: float
     height: float
     far: float
-
+    
     fig_world: plt.Figure = field(init=False)
     ax_world: Axes = field(init=False)
 
@@ -27,9 +27,9 @@ class Projection:
     ax_proj: Axes = field(init=False)
 
     def __post_init__(self):
-        self.fig_world, self.ax_world = plt.subplots(1, 1, figsize=(8, 8))
+        self.fig_world, self.ax_world = plt.subplots(1, 1)
         self.ax_world.set_aspect("equal")
-        self.fig_proj, self.ax_proj = plt.subplots(1, 1, figsize=(8, 8))
+        self.fig_proj, self.ax_proj = plt.subplots(1, 1,)
         self.ax_proj.set_aspect("equal")
 
         n, f, h = self.near, self.far, self.height
@@ -43,7 +43,8 @@ class Projection:
             self.plot_proj(
                 x, y, c="k", alpha=0.5, marker=".", markersize=1, linewidth=0.5
             )
-
+    
+        
     def project(self, x, y):
         u = 2 * (x - self.near) / (self.far - self.near)
         v = (y * self.near) / (x * self.height)

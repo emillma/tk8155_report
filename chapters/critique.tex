@@ -2,6 +2,7 @@
 In this section, we will discuss certain elements of the paper that we believe could be improved.
 
 \subsection{Spherical Harmonics}
+\label{sec:spherical_harmonics}
 In the current implementation, they use spherical harmonics to handle view-dependent color from reflections.
 They present this approach as "following standard practice" referencing the Plenoxels and Instant Neural Graphics papers \cite{yuPlenoxelsRadianceFields2021a}\cite{mullerInstantNeuralGraphics2022}.
 As the paper uses a fundamentally different representation of the scene, I believe following the same approach for view-dependent color might not be the best choice.
@@ -17,6 +18,13 @@ We propose to remove the spherical harmonic coefficients from the representation
 In this phase, we keep the converged scene constant and add a set of Gaussians with a view-dependent opacity to simulate reflections.
 
 A potential problem with this approach is the popping effect discussed in Section \ref{sec:popping}, which makes it difficult to optimize Gaussians laying on the surface of the scene geometry.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{images/spherical_harmonics.png}
+    \label{fig:spherical_harmonics}
+    \caption{Visualization of the spherical harmonics used to represent the view-dependent color of each Gaussian \cite{pokorny2014a}.}
+\end{figure}
 
 \subsection{Use CUDA Streams to increase parallelism}
 The code provided by the authors showcases a deep understanding of CUDA and GPU architecture,
